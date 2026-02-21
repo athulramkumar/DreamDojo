@@ -91,9 +91,7 @@ _default_groot_config = LazyDict(
         ),
         checkpoint=dict(
             save_iter=5_000,
-            # pyrefly: ignore  # missing-attribute
-            load_path=get_checkpoint_path(DEFAULT_CHECKPOINT.s3.uri),
-            # load_path="/mnt/amlfs-01/shared/shenyuang/cosmos_logs/exp1201/pretrain/checkpoints/iter_000100000/",
+            load_path="",
             load_training_state=False,
             strict_resume=False,
             load_from_object_store=dict(
@@ -147,16 +145,8 @@ _default_groot_config = LazyDict(
         ),
         model=dict(
             config=dict(
-                # Enable LoRA training
-                # use_lora=True,
-                # lora_rank=32,              # Rank of LoRA adaptation matrices
-                # lora_alpha=32,             # LoRA scaling parameter
-                # lora_target_modules="q_proj,k_proj,v_proj,output_proj,mlp.layer1,mlp.layer2",
-                # init_lora_weights=True,    # Properly initialize LoRA weights
-                # NOTE: this should be 1 for the action conditioned model
                 min_num_conditional_frames=1,
                 max_num_conditional_frames=1,
-                # overwrite the probs to disable random num of conditional frames
                 conditional_frames_probs=None,
                 state_t=1 + 12 // 4,
                 net=dict(
@@ -196,14 +186,12 @@ _default_groot_config_14b = LazyDict(
             name="2b_groot_action_conditioned",
         ),
         optimizer=dict(
-            # lr=2 ** (-14.5),  # 2**(-14.5) = 3.0517578125e-05
             lr=16e-5,
             weight_decay=0.1,
         ),
         checkpoint=dict(
             save_iter=5_000,
-            # pyrefly: ignore  # missing-attribute
-            load_path=get_checkpoint_path(DEFAULT_CHECKPOINT_14B.s3.uri),
+            load_path="",
             # load_path="/mnt/amlfs-01/shared/shenyuang/cosmos_logs/exp1201/pretrain/checkpoints/iter_000100000/",
             load_training_state=False,
             strict_resume=False,

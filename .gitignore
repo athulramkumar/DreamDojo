@@ -1,0 +1,19 @@
+# Large binary files - download via HuggingFace (see docs/ONBOARDING.md)
+checkpoints/
+datasets/
+results/
+
+# Environment (recreate via install.sh)
+.venv/
+
+# Build/cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+.cache/
+
+# Outputs
+outputs/
+
+# uv lock file (large, auto-generated)
+uv.lock

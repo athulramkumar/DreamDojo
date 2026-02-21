@@ -940,6 +940,11 @@ def get_checkpoint_by_hf(checkpoint_hf: str) -> str:
     return path
 
 
+_GATED_REPO_FALLBACKS = {
+    "Wan2.1_VAE.pth": "/workspace/.hf_home/hub/models--Wan-AI--Wan2.1-T2V-1.3B/snapshots/37ec512624d61f7aa208f7ea8140a131f93afc9a/Wan2.1_VAE.pth",
+}
+
+
 @functools.lru_cache
 def get_checkpoint_path(checkpoint_uri: str) -> str:
     """Return checkpoint path for S3 URI, HuggingFace URI, or local path.
@@ -952,10 +957,21 @@ def get_checkpoint_path(checkpoint_uri: str) -> str:
     if INTERNAL:
         return checkpoint_uri
     checkpoint_uri = checkpoint_uri.rstrip("/")
-    if checkpoint_uri.startswith("s3://"):
-        return get_checkpoint_by_s3(checkpoint_uri).path
-    if checkpoint_uri.startswith("hf://"):
-        return get_checkpoint_by_hf(checkpoint_uri)
+    try:
+        if checkpoint_uri.startswith("s3://"):
+            return get_checkpoint_by_s3(checkpoint_uri).path
+        if checkpoint_uri.startswith("hf://"):
+            return get_checkpoint_by_hf(checkpoint_uri)
+    except Exception as e:
+        import logging
+        basename = os.path.basename(checkpoint_uri)
+        if basename in _GATED_REPO_FALLBACKS:
+            fallback = _GATED_REPO_FALLBACKS[basename]
+            if os.path.exists(fallback):
+                logging.warning(f"Gated repo fallback: {checkpoint_uri} -> {fallback}")
+                return fallback
+        logging.warning(f"Could not resolve checkpoint URI {checkpoint_uri}: {e}. Returning empty string.")
+        return ""
     if not os.path.exists(checkpoint_uri):
         raise ValueError(f"Checkpoint path {checkpoint_uri} does not exist.")
     return checkpoint_uri
